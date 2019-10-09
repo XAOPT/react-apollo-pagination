@@ -10,11 +10,11 @@ function initState(_pageSize) {
     intentionPageNum: 1,
     intensionCursorAfter: null,
     timestamp: 0,
-  
+
     loading: true,
     error: null,
     // loadingFirst: true
-  
+
     pageNum: null,
     hasPrevPage: null,
     hasNextPage: null,
@@ -40,8 +40,8 @@ function reducer(state, action) {
 
       // if (process.env.NODE_ENV==='development') {
       //   console.log(`reducer setPageNext ${intentionPageNum}`);
-      // }  
-    
+      // }
+
       // if (intentionPageNum <= state.arPageNums.length) {
 
       //   const pageNum = intentionPageNum;
@@ -79,7 +79,7 @@ function reducer(state, action) {
 
       // if (process.env.NODE_ENV==='development') {
       //   console.log(`reducer setPagePrev ${intentionPageNum}`);
-      // }  
+      // }
 
       return {
         ...state,
@@ -111,7 +111,7 @@ function reducer(state, action) {
       const intensionCursorAfter = state.arCursorAfter[intentionPageNum - 1];
       // if (process.env.NODE_ENV==='development') {
       //   console.log(`reducer setPagePrev ${intentionPageNum}`);
-      // }  
+      // }
 
       return {
         ...state,
@@ -175,7 +175,7 @@ function reducer(state, action) {
     case "error":
       // if (process.env.NODE_ENV==='development') {
       //   console.log("reducer: error");
-      // }  
+      // }
 
       return {
         ...state,
@@ -204,7 +204,7 @@ function usePagination (client, options, pageSize) {
     () => {
       // if (process.env.NODE_ENV==='development') {
       //   console.log('useMemo memoRestOptions')
-      // }      
+      // }
       const {variables, ...restOptions} = options
       return {variables: variables || {}, ...restOptions }
     },
@@ -223,8 +223,10 @@ function usePagination (client, options, pageSize) {
         ...memoOptions,
         variables: {
           ...memoOptions.variables,
-          after: null,
-          first: pageSize
+          pagination: {
+            after: null,
+            first: pageSize
+          }
         },
         fetchPolicy: "network-only"
       });
@@ -261,12 +263,12 @@ function usePagination (client, options, pageSize) {
       // if (!state.pageNum) {
       if (!state.timestamp) {
       //-2) return to first page will be processed in reducer
-      // if (!state.intensionCursorAfter) {          
+      // if (!state.intensionCursorAfter) {
         return
       }
       // if (process.env.NODE_ENV==='development') {
       //   console.log("asyncFunctionInEffect");
-      // }  
+      // }
       try {
         let prevData = client.readQuery({ query: memoOptions.query });
         const isQueryCached = state.intensionCursorAfter
@@ -283,13 +285,15 @@ function usePagination (client, options, pageSize) {
           });
           return;
         }
-  
+
         let options = {
           ...memoOptions,
           variables: {
             ...memoOptions.variables,
-            first: pageSize,
-            after: state.intensionCursorAfter
+            pagination: {
+              first: pageSize,
+              after: state.intensionCursorAfter
+            }
           },
           // fetchPolicy: 'network-only',
           fetchPolicy: 'no-cache'
